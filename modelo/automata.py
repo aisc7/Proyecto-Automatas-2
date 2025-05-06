@@ -8,41 +8,31 @@ class Automata:
         alfabeto="",
         transiciones=None,
         estado_inicial=None,
-        estados_finales=None
+        estados_finales=None,
+        nombre=""
     ):
         self.estados = estados if estados is not None else []  
         self.alfabeto = alfabeto
         self.transiciones = transiciones if transiciones is not None else []  
         self.estado_inicial = estado_inicial
         self.estados_finales = estados_finales if estados_finales is not None else []
+        self.nombre = nombre
         self.contador = 0
         self.visitados = []
-        # Added attributes for algorithm
-        self.estadoInicial = None  # Reference to Estado object, not just name
-        self.estadoFinal = None    # Reference to Estado object, not just name
+        self.estadoInicial = None  # Para operaciones de construcción
+        self.estadoFinal = None    # Para operaciones de construcción
 
     def imprimirTransiciones(self):
-        for i in range(len(self.transiciones)):
-            print("Origen {0} - Destino {1} - Simbolo {2}".format(self.transiciones[i].origen.nombre,self.transiciones[i].destino.nombre,self.transiciones[i].simbolo))
+        for trans in self.transiciones:
+            print(f"Origen {trans.origen.nombre} -> Destino {trans.destino.nombre} (Símbolo: {trans.simbolo})")
 
     def setAlfabeto(self, alfabeto):
         self.alfabeto = alfabeto
-
-    def obtenerEstado(self, origen):
-        # Fix: Handle both string and Estado object cases
-        if isinstance(origen, Estado):
-            origen_nombre = origen.nombre
-        else:
-            origen_nombre = origen
-            
+        
+    def obtenerEstado(self, nombre_estado):
         for estado in self.estados:
-            # Fix: Make sure estados contains Estado objects, not just strings
-            if isinstance(estado, str):
-                if estado == origen_nombre:
-                    return Estado(estado)
-            else:
-                if estado.nombre == origen_nombre:
-                    return estado
+            if estado.nombre == nombre_estado:
+                return estado
         return None
 
     def modeloA(self, letra):
@@ -51,9 +41,7 @@ class Automata:
         estado2 = Estado(str(self.contador))
         self.contador += 1
         
-        # Fix: Append Estado objects, not just names
-        self.estados.append(estado1)
-        self.estados.append(estado2)
+        self.estados.extend([estado1, estado2])
         
         transicion = Transicion(estado1, estado2, letra)
         estado1.transiciones.append(estado2.nombre)
@@ -70,29 +58,29 @@ class Automata:
         nuevoEstadoFinal = Estado(str(self.contador))
         self.contador += 1
         
-        transicion1 = Transicion(nuevoEstadoInicial, bloque.estadoInicial, 'e')
-        transicion2 = Transicion(bloque.estadoFinal, nuevoEstadoFinal, 'e')
-        transicion3 = Transicion(nuevoEstadoInicial, nuevoEstadoFinal, 'e')
-        transicion4 = Transicion(bloque.estadoFinal, bloque.estadoInicial, 'e')
+        transiciones = [
+            Transicion(nuevoEstadoInicial, bloque.estadoInicial, 'e'),
+            Transicion(bloque.estadoFinal, nuevoEstadoFinal, 'e'),
+            Transicion(nuevoEstadoInicial, nuevoEstadoFinal, 'e'),
+            Transicion(bloque.estadoFinal, bloque.estadoInicial, 'e')
+        ]
         
-        nuevoEstadoInicial.transiciones.append(bloque.estadoInicial.nombre)
-        bloque.estadoFinal.transiciones.append(nuevoEstadoFinal.nombre)
-        nuevoEstadoInicial.transiciones.append(nuevoEstadoFinal.nombre)
-        bloque.estadoFinal.transiciones.append(bloque.estadoInicial.nombre)
+        nuevoEstadoInicial.transiciones.extend([
+            bloque.estadoInicial.nombre,
+            nuevoEstadoFinal.nombre
+        ])
+        bloque.estadoFinal.transiciones.extend([
+            nuevoEstadoFinal.nombre,
+            bloque.estadoInicial.nombre
+        ])
         
-        # Fix: Append Estado objects, not just names
-        self.estados.append(nuevoEstadoInicial)
-        self.estados.append(nuevoEstadoFinal)
+        self.estados.extend([nuevoEstadoInicial, nuevoEstadoFinal])
+        self.transiciones.extend(transiciones)
         
-        self.transiciones.append(transicion1)
-        self.transiciones.append(transicion2)
-        self.transiciones.append(transicion3)
-        self.transiciones.append(transicion4)
-        
-        bloque = Automata()
-        bloque.estadoInicial = nuevoEstadoInicial
-        bloque.estadoFinal = nuevoEstadoFinal
-        return bloque
+        bloque_resultado = Automata()
+        bloque_resultado.estadoInicial = nuevoEstadoInicial
+        bloque_resultado.estadoFinal = nuevoEstadoFinal
+        return bloque_resultado
 
     def mas(self, bloque):
         nuevoEstadoInicial = Estado(str(self.contador))
@@ -100,34 +88,32 @@ class Automata:
         nuevoEstadoFinal = Estado(str(self.contador))
         self.contador += 1
         
-        transicion1 = Transicion(nuevoEstadoInicial, bloque.estadoInicial, 'e')
-        transicion2 = Transicion(bloque.estadoFinal, nuevoEstadoFinal, 'e')
-        transicion4 = Transicion(bloque.estadoFinal, bloque.estadoInicial, 'e')
+        transiciones = [
+            Transicion(nuevoEstadoInicial, bloque.estadoInicial, 'e'),
+            Transicion(bloque.estadoFinal, nuevoEstadoFinal, 'e'),
+            Transicion(bloque.estadoFinal, bloque.estadoInicial, 'e')
+        ]
         
-        # Fix: Ensure objects are handled consistently
         nuevoEstadoInicial.transiciones.append(bloque.estadoInicial.nombre)
-        bloque.estadoFinal.transiciones.append(nuevoEstadoFinal.nombre)
-        bloque.estadoFinal.transiciones.append(bloque.estadoInicial.nombre)
+        bloque.estadoFinal.transiciones.extend([
+            nuevoEstadoFinal.nombre,
+            bloque.estadoInicial.nombre
+        ])
         
-        # Fix: Append Estado objects, not just names
-        self.estados.append(nuevoEstadoInicial)
-        self.estados.append(nuevoEstadoFinal)
+        self.estados.extend([nuevoEstadoInicial, nuevoEstadoFinal])
+        self.transiciones.extend(transiciones)
         
-        self.transiciones.append(transicion1)
-        self.transiciones.append(transicion2)
-        self.transiciones.append(transicion4)
-        
-        bloque = Automata()
-        bloque.estadoInicial = nuevoEstadoInicial
-        bloque.estadoFinal = nuevoEstadoFinal
-        return bloque
+        bloque_resultado = Automata()
+        bloque_resultado.estadoInicial = nuevoEstadoInicial
+        bloque_resultado.estadoFinal = nuevoEstadoFinal
+        return bloque_resultado
 
     def concatenar(self, bloque1, bloque2):
-        bloque2.estadoInicial.nombre = bloque1.estadoFinal.nombre
-        bloque = Automata()
-        bloque.estadoInicial = bloque1.estadoInicial
-        bloque.estadoFinal = bloque2.estadoFinal
-        return bloque
+        bloque2.estadoInicial = bloque1.estadoFinal
+        bloque_resultado = Automata()
+        bloque_resultado.estadoInicial = bloque1.estadoInicial
+        bloque_resultado.estadoFinal = bloque2.estadoFinal
+        return bloque_resultado
     
     def disyuncion(self, bloque1, bloque2):
         nuevoEstadoInicial = Estado(str(self.contador))
@@ -135,32 +121,121 @@ class Automata:
         nuevoEstadoFinal = Estado(str(self.contador))
         self.contador += 1
         
-        self.transiciones.append(Transicion(nuevoEstadoInicial, bloque1.estadoInicial, 'e'))
-        self.transiciones.append(Transicion(nuevoEstadoInicial, bloque2.estadoInicial, 'e'))
-        self.transiciones.append(Transicion(bloque1.estadoFinal, nuevoEstadoFinal, 'e'))
-        self.transiciones.append(Transicion(bloque2.estadoFinal, nuevoEstadoFinal, 'e'))
+        transiciones = [
+            Transicion(nuevoEstadoInicial, bloque1.estadoInicial, 'e'),
+            Transicion(nuevoEstadoInicial, bloque2.estadoInicial, 'e'),
+            Transicion(bloque1.estadoFinal, nuevoEstadoFinal, 'e'),
+            Transicion(bloque2.estadoFinal, nuevoEstadoFinal, 'e')
+        ]
         
-        nuevoEstadoInicial.transiciones.append(bloque1.estadoInicial.nombre)
-        nuevoEstadoInicial.transiciones.append(bloque2.estadoInicial.nombre)
+        nuevoEstadoInicial.transiciones.extend([
+            bloque1.estadoInicial.nombre,
+            bloque2.estadoInicial.nombre
+        ])
         bloque1.estadoFinal.transiciones.append(nuevoEstadoFinal.nombre)
         bloque2.estadoFinal.transiciones.append(nuevoEstadoFinal.nombre)
         
-        # Fix: Append Estado objects, not just names
-        self.estados.append(nuevoEstadoInicial)
-        self.estados.append(nuevoEstadoFinal)
+        self.estados.extend([nuevoEstadoInicial, nuevoEstadoFinal])
+        self.transiciones.extend(transiciones)
         
-        bloque = Automata()
-        bloque.estadoInicial = nuevoEstadoInicial
-        bloque.estadoFinal = nuevoEstadoFinal
-        return bloque
+        bloque_resultado = Automata()
+        bloque_resultado.estadoInicial = nuevoEstadoInicial
+        bloque_resultado.estadoFinal = nuevoEstadoFinal
+        return bloque_resultado
 
-    def RecorridoProfundidad(self, dato):  # dato es en que vertice empieza el recorrido
+    def RecorridoProfundidad(self, dato):
         if dato in self.visitados:
             return
-        else:
-            # Fix: Handle both string and Estado object cases
-            estado = self.obtenerEstado(dato)
-            if estado is not None:
-                self.visitados.append(estado.nombre)
-                for trans_destino in estado.transiciones:
-                    self.RecorridoProfundidad(trans_destino)
+        
+        estado = self.obtenerEstado(dato)
+        if estado is not None:
+            self.visitados.append(estado.nombre)
+            for trans_destino in estado.transiciones:
+                self.RecorridoProfundidad(trans_destino)
+
+    def a_json(self):
+        """Convierte el autómata a un diccionario compatible con JSON"""
+        estados_json = []
+        for estado in self.estados:
+            transiciones_estado_json = []
+            if self.transiciones: # Esta lista está vacía según tu depuración para el autómata 'resultado'
+                for trans in self.transiciones:
+                    if (hasattr(trans, 'origen') and trans.origen and hasattr(trans.origen, 'nombre') and
+                            hasattr(estado, 'nombre') and trans.origen.nombre == estado.nombre):
+                        if hasattr(trans, 'to_dict') and callable(getattr(trans, 'to_dict')):
+                            transiciones_estado_json.append(trans.to_dict())
+                        else:
+                            print(f"Advertencia: La transición {trans} para el estado {estado.nombre} no tiene un método to_dict válido.")
+            
+            estados_json.append({
+                "nombre": estado.nombre if hasattr(estado, 'nombre') else None,
+                "inicial": estado.es_inicial if hasattr(estado, 'es_inicial') else False,
+                "final": estado.es_final if hasattr(estado, 'es_final') else False,
+                "transiciones": transiciones_estado_json # Estará vacía si self.transiciones está vacío
+            })
+
+        # Sección del alfabeto modificada para ser más defensiva
+        alfabeto_procesado = set()
+        if isinstance(self.alfabeto, (list, set)):
+            for item in self.alfabeto:
+                if isinstance(item, str):
+                    alfabeto_procesado.add(item)
+                elif isinstance(item, Transicion) and hasattr(item, 'simbolo'): # Intenta extraer símbolo si es Transicion
+                    if isinstance(item.simbolo, str):
+                        alfabeto_procesado.add(item.simbolo)
+                # Puedes añadir más lógica aquí si el alfabeto puede tener otros formatos inesperados
+        elif isinstance(self.alfabeto, str): # Si el alfabeto es una sola cadena de símbolos
+            for char_simbolo in self.alfabeto:
+                alfabeto_procesado.add(char_simbolo)
+        
+        alfabeto_serializable = sorted(list(alfabeto_procesado))
+
+        return {
+            "nombre": self.nombre,
+            "alfabeto": alfabeto_serializable, # Usar la lista procesada
+            "estados": estados_json,
+            "estado_inicial": self.estado_inicial.nombre if self.estado_inicial and hasattr(self.estado_inicial, 'nombre') else None,
+            "estados_finales": [e.nombre for e in self.estados_finales if hasattr(e, 'nombre')]
+        }
+
+    @classmethod
+    def desde_json(cls, data):
+        """Crea un autómata desde un diccionario JSON"""
+        estados = []
+        estado_dict = {}
+        estado_inicial = None
+        estados_finales = []
+        
+        # Crear todos los estados
+        for estado_data in data["estados"]:
+            estado = Estado(
+                nombre=estado_data["nombre"],
+                es_inicial=estado_data.get("inicial", False),
+                es_final=estado_data.get("final", False)
+            )
+            estados.append(estado)
+            estado_dict[estado.nombre] = estado
+            
+            if estado.es_inicial:
+                estado_inicial = estado
+            if estado.es_final:
+                estados_finales.append(estado)
+        
+        # Crear las transiciones
+        transiciones = []
+        for estado_data in data["estados"]:
+            origen = estado_dict[estado_data["nombre"]]
+            for trans_data in estado_data.get("transiciones", []):
+                destino = estado_dict.get(trans_data["destino"])
+                if destino:
+                    transiciones.append(Transicion(origen, destino, trans_data["simbolo"]))
+                    origen.transiciones.append(destino.nombre)
+        
+        return cls(
+            estados=estados,
+            alfabeto=data.get("alfabeto", ""),
+            transiciones=transiciones,
+            estado_inicial=estado_inicial,
+            estados_finales=estados_finales,
+            nombre=data.get("nombre", "")
+        )
