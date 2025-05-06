@@ -1,0 +1,31 @@
+{
+    "estados": [
+      {
+        "nombre": "A",
+        "inicial": true,
+        "final": true,
+        "transiciones": [
+          {"simbolo": "0", "destino": "B"}
+        ]
+      },
+      {
+        "nombre": "B",
+        "inicial": false,
+        "final": false,
+        "transiciones": [
+          {"simbolo": "0", "destino": "C"},
+          {"simbolo": "1", "destino": "A"}
+        ]
+      }
+      ,
+      {
+        "nombre": "C",
+        "inicial": false,
+        "final": false,
+        "transiciones": [
+          {"simbolo": "0", "destino": "C"},
+          {"simbolo": "1", "destino": "C"}
+        ]
+      }
+    ]
+  }
