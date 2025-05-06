@@ -235,7 +235,7 @@ def completar(a: Automata) -> Automata:
     
     estado_sumidero: Optional[Estado] = None
     if estado_sumidero_necesario:
-        estado_sumidero = Estado("S_sumidero", es_inicial=False, es_final=False)
+        estado_sumidero = Estado("sumidero", es_inicial=False, es_final=False)
         nuevos_estados.append(estado_sumidero)
         estado_dict[estado_sumidero.nombre] = estado_sumidero
 
