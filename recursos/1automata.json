@@ -6,7 +6,10 @@
         "inicial": true,
         "final": true,
         "transiciones": [
-          {"simbolo": "0", "destino": "B"}        ]
+          {"simbolo": "0", "destino": "B"},
+          {"simbolo": "1", "destino": "C"}        
+      
+        ]
       },
       {
         "nombre": "B",
@@ -22,7 +25,8 @@
         "inicial": false,
         "final": false,
         "transiciones": [
-          {"simbolo": "0", "destino": "C"}        ]
+          {"simbolo": "0", "destino": "C"}        
+        ]
       }
     ]
   }

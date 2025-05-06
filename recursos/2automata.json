@@ -7,7 +7,7 @@
       "final": false,
       "transiciones": [
         {"simbolo": "0", "destino": "D"},
-        {"simbolo": "1", "destino": "C"}
+        {"simbolo": "1", "destino": "E"}
       ]
     },
     {
