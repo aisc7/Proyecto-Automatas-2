@@ -1,4 +1,5 @@
 {
+  "alfabeto": ["0", "1"],
   "estados": [
     {
       "nombre": "D",
